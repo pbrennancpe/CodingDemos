@@ -12,7 +12,9 @@ namespace Ticketing.Models.Enums
         [Display(Name = "In Progress")]
         InProgress,
         [Display(Name = "Closed")]
-        Closed
+        Closed,
+        [Display(Name = "Error")]
+        Error
     }
 
 

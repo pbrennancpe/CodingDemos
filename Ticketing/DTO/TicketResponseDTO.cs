@@ -1,21 +1,15 @@
-using System;
 using Ticketing.Models.Enums;
 
-
-namespace Ticketing.Models
+namespace Ticketing.DTO
 {
-
-    public class Ticket
+    public class TicketResponseDTO
     {
         public Guid Id { get; set; }
         public required string Title { get; set; }
         public string? Description { get; set; }
-        public Status TicketStatus { get; set; }
+        public required string TicketStatus { get; set; } = "Open";
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
-        public User? AssignedUser { get; set; }
-        public Guid? AssignedUserId { get; set; }
-
+        public UserDTO? AssignedUser { get; set; }
     }
-
 }

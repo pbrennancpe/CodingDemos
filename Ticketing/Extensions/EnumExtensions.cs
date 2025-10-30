@@ -2,21 +2,21 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 
-namespace Ticketing.Models.Enums
+namespace Ticketing.Extensions
 {
 
-public static class EnumExtensions
-{
-    public static string GetDisplayName(this Enum value)
+    public static class EnumExtensions
     {
-            return value.GetType()
-                    .GetMember(value.ToString())
-                    .FirstOrDefault()?
-                    .GetCustomAttribute<DisplayAttribute>()?
-                    .Name
-                    ?? value.ToString();
+        public static string GetDisplayName(this Enum value)
+        {
+                return value.GetType()
+                        .GetMember(value.ToString())
+                        .FirstOrDefault()?
+                        .GetCustomAttribute<DisplayAttribute>()?
+                        .Name
+                        ?? value.ToString();
+        }
     }
-}
 
 
 
