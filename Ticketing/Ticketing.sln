@@ -1,3 +1,4 @@
+﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.2.0
@@ -7,13 +8,37 @@ EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
 		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{FC01744E-3E57-4116-D41B-1545D5F33955}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{FC01744E-3E57-4116-D41B-1545D5F33955}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FC01744E-3E57-4116-D41B-1545D5F33955}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{FC01744E-3E57-4116-D41B-1545D5F33955}.Debug|x64.Build.0 = Debug|Any CPU
+		{FC01744E-3E57-4116-D41B-1545D5F33955}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{FC01744E-3E57-4116-D41B-1545D5F33955}.Debug|x86.Build.0 = Debug|Any CPU
 		{FC01744E-3E57-4116-D41B-1545D5F33955}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FC01744E-3E57-4116-D41B-1545D5F33955}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FC01744E-3E57-4116-D41B-1545D5F33955}.Release|x64.ActiveCfg = Release|Any CPU
+		{FC01744E-3E57-4116-D41B-1545D5F33955}.Release|x64.Build.0 = Release|Any CPU
+		{FC01744E-3E57-4116-D41B-1545D5F33955}.Release|x86.ActiveCfg = Release|Any CPU
+		{FC01744E-3E57-4116-D41B-1545D5F33955}.Release|x86.Build.0 = Release|Any CPU
+		{7989A44E-CCBC-4C80-98EB-8C6C5481A6FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7989A44E-CCBC-4C80-98EB-8C6C5481A6FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7989A44E-CCBC-4C80-98EB-8C6C5481A6FF}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{7989A44E-CCBC-4C80-98EB-8C6C5481A6FF}.Debug|x64.Build.0 = Debug|Any CPU
+		{7989A44E-CCBC-4C80-98EB-8C6C5481A6FF}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{7989A44E-CCBC-4C80-98EB-8C6C5481A6FF}.Debug|x86.Build.0 = Debug|Any CPU
+		{7989A44E-CCBC-4C80-98EB-8C6C5481A6FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7989A44E-CCBC-4C80-98EB-8C6C5481A6FF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7989A44E-CCBC-4C80-98EB-8C6C5481A6FF}.Release|x64.ActiveCfg = Release|Any CPU
+		{7989A44E-CCBC-4C80-98EB-8C6C5481A6FF}.Release|x64.Build.0 = Release|Any CPU
+		{7989A44E-CCBC-4C80-98EB-8C6C5481A6FF}.Release|x86.ActiveCfg = Release|Any CPU
+		{7989A44E-CCBC-4C80-98EB-8C6C5481A6FF}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

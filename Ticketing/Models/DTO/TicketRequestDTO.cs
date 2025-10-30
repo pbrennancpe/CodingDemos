@@ -1,13 +1,12 @@
 using Ticketing.Models.Enums;
 
-namespace Ticketing.DTO
+namespace Ticketing.Models.DTO
 {
-    public class CreateTicketDTO
+    public class TicketRequestDTO
     {
         public required string Title { get; set; }
-        public string? Email { get; set; }
+        public string? Description { get; set; }
         public required string TicketStatus { get; set; } = "Open";
-        public string? AssignedUserName { get; set; }
         public Guid? AssignedUserId { get; set; }
     }
 }

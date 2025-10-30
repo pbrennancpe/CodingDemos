@@ -1,10 +1,10 @@
 using Ticketing.Models.Enums;
 
-namespace Ticketing.DTO
+namespace Ticketing.Models.DTO
 {
     public class UserDTO
     {
-        public Guid Id { get; set; }
+        public required Guid Id { get; set; }
         public required string Name { get; set; }
         public string? Email { get; set; }
     }
