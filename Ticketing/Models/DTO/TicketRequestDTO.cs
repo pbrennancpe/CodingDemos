@@ -4,9 +4,14 @@ namespace Ticketing.Models.DTO
 {
     public class TicketRequestDTO
     {
-        public required string Title { get; set; }
+        public string? Title { get; set; }
         public string? Description { get; set; }
-        public required string TicketStatus { get; set; } = "Open";
         public Guid? AssignedUserId { get; set; }
+    }
+
+    public class UpdateTicketDTO : TicketRequestDTO
+    {
+        public required Guid Id { get; set; }
+        public string? TicketStatus { get; set; }
     }
 }

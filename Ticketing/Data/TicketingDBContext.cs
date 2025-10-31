@@ -7,8 +7,8 @@ namespace Ticketing.Data
     {
         public TicketingDBContext(DbContextOptions<TicketingDBContext> options) : base(options) { }
 
-        public DbSet<User> Users { get; set; }
-        public DbSet<Ticket> Tickets { get; set; }
+        public virtual DbSet<User> Users { get; set; }
+        public virtual DbSet<Ticket> Tickets { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

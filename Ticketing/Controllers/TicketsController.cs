@@ -13,6 +13,25 @@ namespace Ticketing.Controllers
     public class TicketsController(ITicketService service) : ControllerBase
     {
 
+        public async Task<IActionResult> GetTickets()
+        {
+            try
+            {
+                var tickets = await service.GetTickets(new TicketQuery());
+
+                if (tickets != null)
+                {
+                    return Ok(tickets);
+                }
+                else return NotFound();
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
         [HttpGet]
         public async Task<IActionResult> GetTickets([FromQuery] TicketQuery query)
         {
@@ -60,7 +79,7 @@ namespace Ticketing.Controllers
             {
                 var result = await service.CreateTicket(requestDTO);
 
-                if (result != null)
+                if (result == true)
                 {
                     return Ok();
                 }
@@ -73,15 +92,14 @@ namespace Ticketing.Controllers
             }
             
         }
-
-        [HttpPost("{id}")]
-        public async Task<IActionResult> UpdateTicket(Guid id, [FromBody] TicketRequestDTO requestDTO)
+        [HttpPost]
+        public async Task<IActionResult> UpdateTicket(UpdateTicketDTO requestDTO)
         {
             try
             {
-                var result = await service.CreateTicket(requestDTO);
+                var result = await service.UpdateTicket(requestDTO);
 
-                if (result != null)
+                if (result == true)
                 {
                     return Ok();
                 }

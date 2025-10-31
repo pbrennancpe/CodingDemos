@@ -7,7 +7,7 @@ namespace Ticketing.Services.Interfaces
     {
         Task<IEnumerable<TicketResponseDTO>> GetTickets(TicketQuery query);
         Task<TicketResponseDTO> GetTicketById(Guid id);
-        Task<bool> UpdateTicket(Guid ticketId, TicketRequestDTO request);
+        Task<bool> UpdateTicket(UpdateTicketDTO request);
         Task<bool> CreateTicket(TicketRequestDTO request);
 
     }

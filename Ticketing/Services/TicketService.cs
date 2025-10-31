@@ -9,22 +9,20 @@ using Ticketing.Services.Interfaces;
 
 namespace Ticketing.Services 
 {
-    public class TicketService : ITicketService
+    public class TicketService(TicketingDBContext context) : ITicketService
     {
-        private readonly TicketingDBContext _context;
 
-        public TicketService(TicketingDBContext context)
-        {
-            _context = context;
-        }
         public async Task<TicketResponseDTO> GetTicketById(Guid id)
         {
-            var ticket = await _context.Tickets.FindAsync(id);
+            var ticket = await context.Tickets
+                .Include(x => x.AssignedUser)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == id);
 
             if (ticket == null)
             {
-                //Throw an exception
-                throw new Exception();
+                //Don't throw an exception just return null
+                return null;
             }
             
 
@@ -49,17 +47,20 @@ namespace Ticketing.Services
 
         public async Task<IEnumerable<TicketResponseDTO>> GetTickets(TicketQuery query)
         {
-            var tickets = _context.Tickets.AsQueryable();
+            var tickets = context
+                .Tickets.Include(x => x.AssignedUser)
+                .AsNoTracking()
+                .AsQueryable();
 
-            if (string.IsNullOrEmpty(query?.Status))
+            if (!string.IsNullOrEmpty(query?.Status))
             {
                 var status = query?.Status?.ToStatusEnum();
 
                 tickets = tickets.Where(x => x.TicketStatus == status);
             }
-            if(query?.User.HasValue == true)
+            if(query?.UserId.HasValue == true)
             {
-                tickets = tickets.Where(x => x.AssignedUserId == query.User);
+                tickets = tickets.Where(x => x.AssignedUserId == query.UserId);
             }
             return await tickets.Select(x => new TicketResponseDTO
             {
@@ -79,32 +80,32 @@ namespace Ticketing.Services
                  : null
             }).ToListAsync();
         }
-        public async Task<bool> UpdateTicket(Guid ticketId, TicketRequestDTO request)
+        public async Task<bool> UpdateTicket(UpdateTicketDTO request)
         {
             bool result = true;
-            var ticket = await _context.Tickets.FindAsync(ticketId);
+            var ticket = await context.Tickets
+                .Include(x => x.AssignedUser)
+                .FirstOrDefaultAsync(x => x.Id == request.Id);
 
-            //Ideally this would be handled with reflection in a helper method.
-            //If I feel like I have more time I can make that enhancement but it won't actually
-            //Save much time at the moment since we are only updating one object
             if (ticket == null)
                 return false;
 
             ticket.AssignedUserId = request.AssignedUserId != null &&
-                await _context.Users.FindAsync(request.AssignedUserId) != null ?
+                await context.Users.FindAsync(request.AssignedUserId) != null ?
                  request.AssignedUserId :
                  ticket.AssignedUserId;
 
             ticket.Title = request.Title ?? ticket.Title;
             ticket.Description = request.Description ?? ticket.Description;
-            ticket.TicketStatus = request.TicketStatus != null ?
+            ticket.TicketStatus = request.TicketStatus != null &&
+            request.TicketStatus.ToStatusEnum() != Models.Enums.Status.Error ?
                 request.TicketStatus.ToStatusEnum() :
                 ticket.TicketStatus;
 
         
             ticket.UpdatedAt = DateTime.UtcNow;
 
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
             
 
             return result;
@@ -115,21 +116,21 @@ namespace Ticketing.Services
             var userId = request.AssignedUserId;
             if (userId != null)
             {
-                userId = await _context.Users.FindAsync(userId) != null ? userId : null;
+                userId = await context.Users.FindAsync(userId) != null ? userId : null;
             }
 
             Ticket newTicket = new Ticket
             {
                 Id = Guid.NewGuid(),
-                Title = request.Title,
+                Title = request.Title ?? "New Ticket",
                 Description = request.Description,
                 TicketStatus = Models.Enums.Status.Open,
                 AssignedUserId = userId,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
-            _context.Tickets.Add(newTicket);
-            await _context.SaveChangesAsync();
+            context.Tickets.Add(newTicket);
+            await context.SaveChangesAsync();
             return true;
         }
     }
