@@ -1,7 +1,8 @@
 using System.Net.Http.Json;
 using TicketingFE.Models;
+using Microsoft.JSInterop;
 
-public class TicketApiService(HttpClient client)
+public class TicketApiService(HttpClient client, IJSRuntime js)
 {
 
     public async Task<List<TicketResponseDTO>?> GetTicketsAsync(TicketQuery? query = null)
@@ -24,9 +25,32 @@ public class TicketApiService(HttpClient client)
             if (queryParams.Count > 0)
                 url += "?" + string.Join("&", queryParams);
         }
+        var fullUrl = new Uri(client.BaseAddress ?? new Uri(""), url);
+        _ = DebugLogAsync($"Full request URL: {fullUrl}");
 
-        return await client.GetFromJsonAsync<List<TicketResponseDTO>>(url);
+        List<TicketResponseDTO> tickets = null;
+    try
+    {
+        var response = await client.GetAsync(url);
+
+        // Log HTTP status and headers
+        _ = DebugLogAsync($"HTTP Status: {response.StatusCode}");
+        _ = DebugLogAsync($"Reason: {response.ReasonPhrase}");
+
+        response.EnsureSuccessStatusCode(); // Throws if not 2xx
+
+        tickets = await response.Content.ReadFromJsonAsync<List<TicketResponseDTO>>();
+        await DebugLogObjectAsync(tickets);
+        return tickets;
     }
+        catch(Exception ex)
+        {
+            _ = DebugLogAsync($"Exception: {ex.Message}");
+        }
+        _ = DebugLogAsync($"Tickets:");
+        _ = DebugLogObjectAsync(tickets);
+        return tickets;
+        }
 
     public async Task<List<TicketResponseDTO>> GetTicketsAsync()
     {
@@ -50,5 +74,18 @@ public class TicketApiService(HttpClient client)
     {
         var response = await client.PostAsJsonAsync("Tickets", dto);
         return response.IsSuccessStatusCode;
+    }
+
+    public async Task DebugLogAsync(string message)
+    {
+        await js.InvokeVoidAsync("console.log", message);
+    }
+        public async Task DebugLogObjectAsync(object obj)
+    {
+        var jsonContent = JsonContent.Create(obj);
+        var jsonString = await jsonContent.ReadAsStringAsync();
+
+
+        await js.InvokeVoidAsync("console.log", jsonString);
     }
 }   

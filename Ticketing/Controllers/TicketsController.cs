@@ -4,6 +4,7 @@ using Ticketing.Data;
 using Ticketing.Models.DTO;
 using Ticketing.Models;
 using Ticketing.Services.Interfaces;
+using Microsoft.AspNetCore.Cors;
 
 
 namespace Ticketing.Controllers
@@ -12,7 +13,7 @@ namespace Ticketing.Controllers
     [Route("[controller]")]
     public class TicketsController(ITicketService service) : ControllerBase
     {
-
+        
         public async Task<IActionResult> GetTickets()
         {
             try

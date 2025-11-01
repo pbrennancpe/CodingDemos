@@ -20,6 +20,9 @@ var config = await http.GetFromJsonAsync<Dictionary<string, object>>("appsetting
 
 var apiBaseUrl = builder.Configuration["ApiSettings:BaseUrl"];
 
+
+
+
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(apiBaseUrl) });
 
 await builder.Build().RunAsync();

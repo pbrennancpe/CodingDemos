@@ -1,19 +1,37 @@
 ﻿@page "/"
 @using TicketingFE.Models
 @inject TicketApiService TicketService
+@inject UserApiService UserService
 
 <PageTitle>Ticketing Home</PageTitle>
 
-<MudTable Items="@Tickets.Take(10)" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading" LoadingProgressColor="Color.Info">
+<MudGrid>
+    <MudItem xs="6">
+    </MudItem>
+    <MudItem xs="3">
+    @if(false && Users != null && Users.Any())
+    {
+        <MudSelect @bind-Value="SelectedUserId">
+            <MudSelectItem T="Guid?" Value="@(null)">user.Name</MudSelectItem>
+            @foreach(var user in Users)
+            {
+                <MudSelectItem Value="@user.Id">@user.Name</MudSelectItem>
+            }
+        </MudSelect>
+    }
+    </MudItem>
+    <MudItem xs="3">
+    </MudItem>
+</MudGrid>
+
+<MudTable Items="@Tickets" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading" LoadingProgressColor="Color.Info">
     <HeaderContent>
-        <MudTh>Id</MudTh>
         <MudTh>Title</MudTh>
         <MudTh>Description</MudTh>
         <MudTh>Status</MudTh>
         <MudTh>Assigned User</MudTh>
     </HeaderContent>
     <RowTemplate>
-        <MudTd DataLabel="Id">@context.Id.ToString()</MudTd>
         <MudTd DataLabel="Title">@context.Title</MudTd>
         <MudTd DataLabel="Description">@context.Description</MudTd>
         <MudTd DataLabel="Status" HideSmall="_hidePosition">@context.TicketStatusDisplay</MudTd>
@@ -21,8 +39,6 @@
     </RowTemplate>
 </MudTable>
 
-<MudSwitch @bind-Value="_hidePosition" Color="Color.Primary">Hide <b>position</b> when Breakpoint=Xs</MudSwitch>
-<MudSwitch @bind-Value="_loading" Color="Color.Primary">Show Loading</MudSwitch>
 
 
 @code {
@@ -30,10 +46,10 @@
     private bool _loading;
 
     private List<(string Value, string DisplayName)> statusOptions = new();
-    private List<TicketResponseDTO>? Tickets {get;set;}
-    private List<UserDTO>? allUSers;
-    private string? _selectedUserId;
-    private string? SelectedUserId {
+    private List<TicketResponseDTO>? Tickets { get; set; }
+    private List<UserDTO>? Users { get; set; }
+    private Guid? _selectedUserId;
+    private Guid? SelectedUserId {
         get => _selectedUserId;
          set {
             _selectedUserId = value;
@@ -49,13 +65,20 @@
             _ = LoadTicketsAsync();
          }
     }
-    private bool isLoading = true;
     
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            isLoading = true;
+            _loading = true;
+
+            var ticketTask = TicketService.GetTicketsAsync(new TicketQuery());
+            var userTask = UserService.GetUsersAsync();
+
+            await Task.WhenAll(ticketTask, userTask);
+
+            Tickets = ticketTask.Result;
+            Users = userTask.Result;
 
            Tickets = await TicketService.GetTicketsAsync(new TicketQuery());
         }
@@ -65,7 +88,7 @@
         }
         finally
         {
-            isLoading = false;
+            _loading = false;
         }
     }
 
@@ -76,7 +99,7 @@
             TicketQuery query = new TicketQuery
             {
                 Status = SelectedStatus,
-                UserId = SelectedUserId
+                UserId = SelectedUserId.ToString()
             };
 
             Tickets = await TicketService.GetTicketsAsync(new TicketQuery());

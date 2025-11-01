@@ -15,9 +15,38 @@ builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<ITicketService, TicketService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.AddDbContext<TicketingDBContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+if (builder.Environment.IsDevelopment())
+{
+    builder.WebHost.ConfigureKestrel(options =>
+    {
+        options.ListenLocalhost(5286);
+        options.ListenLocalhost(7127, listenOptions =>
+        {
+            listenOptions.UseHttps();
+        });
+    });
+    builder.Services.AddHttpsRedirection(options =>
+    {
+        options.HttpsPort = 7127;
+    });
+}
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowBlazorClient",
+        policy =>
+        {
+            policy
+                .WithOrigins("http://localhost:5212")
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+        });
+});
 
 var app = builder.Build();
 
@@ -28,7 +57,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+app.UseRouting();
+app.UseCors("AllowBlazorClient");
+
 app.MapControllers();  
 
 
