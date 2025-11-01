@@ -26,23 +26,7 @@ namespace Ticketing.Services
             }
             
 
-            return new TicketResponseDTO
-            {
-                Id = ticket.Id,
-                Title = ticket.Title,
-                Description = ticket.Description,
-                CreatedAt = ticket.CreatedAt,
-                UpdatedAt = ticket.UpdatedAt,
-                TicketStatus = ticket.TicketStatus,
-                AssignedUser = ticket.AssignedUser != null && ticket.AssignedUserId != null ?
-                 new UserDTO
-                 {
-                     Id = ticket.AssignedUser.Id,
-                     Name = ticket.AssignedUser.Name,
-                     Email = ticket.AssignedUser.Email
-                 }
-                : null
-            };
+            return ticket.ToResponseDTO();
         }
 
         public async Task<IEnumerable<TicketResponseDTO>> GetTickets(TicketQuery query)
@@ -62,33 +46,16 @@ namespace Ticketing.Services
             {
                 tickets = tickets.Where(x => x.AssignedUserId == query.UserId);
             }
-            return await tickets.Select(x => new TicketResponseDTO
-            {
-                Id = x.Id,
-                Title = x.Title,
-                Description = x.Description,
-                CreatedAt = x.CreatedAt,
-                UpdatedAt = x.UpdatedAt,
-                TicketStatus = x.TicketStatus,
-                AssignedUser = x.AssignedUser != null && x.AssignedUserId != null ?
-                 new UserDTO
-                 {
-                     Id = x.AssignedUser.Id,
-                     Name = x.AssignedUser.Name,
-                     Email = x.AssignedUser.Email
-                 }
-                 : null
-            }).ToListAsync();
+            return await tickets.Select(x => x.ToResponseDTO()).ToListAsync();
         }
-        public async Task<bool> UpdateTicket(UpdateTicketDTO request)
+        public async Task<TicketResponseDTO> UpdateTicket(UpdateTicketDTO request)
         {
-            bool result = true;
             var ticket = await context.Tickets
                 .Include(x => x.AssignedUser)
                 .FirstOrDefaultAsync(x => x.Id == request.Id);
 
             if (ticket == null)
-                return false;
+                return null;
 
             ticket.AssignedUserId = request.AssignedUserId != null &&
                 await context.Users.FindAsync(request.AssignedUserId) != null ?
@@ -108,9 +75,9 @@ namespace Ticketing.Services
             await context.SaveChangesAsync();
             
 
-            return result;
+            return ticket.ToResponseDTO();
         }
-        public async Task<bool> CreateTicket(TicketRequestDTO request)
+        public async Task<TicketResponseDTO> CreateTicket(TicketRequestDTO request)
         {
             //Only assign the FK if that guid exists
             var userId = request.AssignedUserId;
@@ -131,7 +98,7 @@ namespace Ticketing.Services
             };
             context.Tickets.Add(newTicket);
             await context.SaveChangesAsync();
-            return true;
+            return newTicket.ToResponseDTO();
         }
     }
     

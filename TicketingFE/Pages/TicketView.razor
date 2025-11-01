@@ -1,0 +1,89 @@
+﻿@page "/"
+@using TicketingFE.Models
+@inject TicketApiService TicketService
+
+<PageTitle>Ticketing Home</PageTitle>
+
+<MudTable Items="@Tickets.Take(10)" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading" LoadingProgressColor="Color.Info">
+    <HeaderContent>
+        <MudTh>Id</MudTh>
+        <MudTh>Title</MudTh>
+        <MudTh>Description</MudTh>
+        <MudTh>Status</MudTh>
+        <MudTh>Assigned User</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Id">@context.Id.ToString()</MudTd>
+        <MudTd DataLabel="Title">@context.Title</MudTd>
+        <MudTd DataLabel="Description">@context.Description</MudTd>
+        <MudTd DataLabel="Status" HideSmall="_hidePosition">@context.TicketStatusDisplay</MudTd>
+        <MudTd DataLabel="Assigned User">@context.AssignedUser.Name</MudTd>
+    </RowTemplate>
+</MudTable>
+
+<MudSwitch @bind-Value="_hidePosition" Color="Color.Primary">Hide <b>position</b> when Breakpoint=Xs</MudSwitch>
+<MudSwitch @bind-Value="_loading" Color="Color.Primary">Show Loading</MudSwitch>
+
+
+@code {
+    private bool _hidePosition;
+    private bool _loading;
+
+    private List<(string Value, string DisplayName)> statusOptions = new();
+    private List<TicketResponseDTO>? Tickets {get;set;}
+    private List<UserDTO>? allUSers;
+    private string? _selectedUserId;
+    private string? SelectedUserId {
+        get => _selectedUserId;
+         set {
+            _selectedUserId = value;
+            _ = LoadTicketsAsync();
+         }
+    }
+    private string? _selectedStatus;
+
+    private string? SelectedStatus {
+        get => _selectedStatus;
+         set {
+            _selectedStatus = value;
+            _ = LoadTicketsAsync();
+         }
+    }
+    private bool isLoading = true;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            isLoading = true;
+
+           Tickets = await TicketService.GetTicketsAsync(new TicketQuery());
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error on initial load: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task LoadTicketsAsync()
+    {
+        try
+        {
+            TicketQuery query = new TicketQuery
+            {
+                Status = SelectedStatus,
+                UserId = SelectedUserId
+            };
+
+            Tickets = await TicketService.GetTicketsAsync(new TicketQuery());
+        }
+        catch(Exception ex)
+        {
+            Console.Error.WriteLine($"Error loading tickets: {ex.Message}");
+        }
+    }
+}

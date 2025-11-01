@@ -1,6 +1,6 @@
-using Ticketing.Models.Enums;
+using TicketingFE.Extensions;
 
-namespace Ticketing.Models.DTO
+namespace TicketingFE.Models
 {
     public class TicketRequestDTO
     {
@@ -11,7 +11,7 @@ namespace Ticketing.Models.DTO
 
     public class UpdateTicketDTO : TicketRequestDTO
     {
-        public Guid? Id { get; set; }
+        public required Guid Id { get; set; }
         public string? TicketStatus { get; set; }
     }
 }

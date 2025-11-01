@@ -79,9 +79,9 @@ namespace Ticketing.Controllers
             {
                 var result = await service.CreateTicket(requestDTO);
 
-                if (result == true)
+                if (result != null)
                 {
-                    return Ok();
+                    return Ok(result);
                 }
                 else return StatusCode(500);
 
@@ -92,18 +92,26 @@ namespace Ticketing.Controllers
             }
             
         }
-        [HttpPost]
-        public async Task<IActionResult> UpdateTicket(UpdateTicketDTO requestDTO)
+        [HttpPost("{id}")]
+        public async Task<IActionResult> UpdateTicket(UpdateTicketDTO requestDTO, Guid id)
         {
             try
             {
+                if (id != Guid.Empty)
+                {
+                    requestDTO.Id = id;
+                }
+                if(requestDTO.Id == null)
+                {
+                    return BadRequest("Given Id is null");
+                }
                 var result = await service.UpdateTicket(requestDTO);
 
-                if (result == true)
+                if (result != null)
                 {
-                    return Ok();
+                    return Ok(result);
                 }
-                else return StatusCode(500);
+                else return NotFound();
 
             }
             catch (Exception ex)

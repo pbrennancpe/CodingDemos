@@ -199,11 +199,11 @@ public class TicketingServiceTests
             Title = "New Ticket Title"
         };
         //Act
-        var success = await service.UpdateTicket(request);
+        var ticketResponse = await service.UpdateTicket(request);
         var after = DateTime.UtcNow;
         //Assert
         var updatedTicket = await _context.Tickets.FindAsync(Ticket4Id);
-        Assert.That(success, Is.True);
+        Assert.That(ticketResponse, Is.Not.Null);
         Assert.That(updatedTicket.Title, Is.EqualTo("New Ticket Title"));
         Assert.That(updatedTicket.Description, Is.EqualTo("Wrong image displays on homepage"));
         Assert.That(updatedTicket.UpdatedAt, Is.InRange(before, after));
@@ -220,11 +220,11 @@ public class TicketingServiceTests
             AssignedUserId = User3Id
         };
         //Act
-        var success = await service.UpdateTicket(request);
+        var ticketResponse = await service.UpdateTicket(request);
         var updatedTicket = await _context.Tickets.FindAsync(Ticket3Id);
         //Assert
 
-        Assert.That(success, Is.True);
+        Assert.That(ticketResponse, Is.Not.Null);
         Assert.That(updatedTicket.AssignedUser, Is.Not.Null);
         Assert.That(updatedTicket.AssignedUser.Name, Is.EqualTo("Clark Kent"));
         Assert.That(updatedTicket.Description, Is.EqualTo("Form button does not enable even when all fields are filled out"));
@@ -246,11 +246,11 @@ public class TicketingServiceTests
             AssignedUserId = Ticket3Id
         };
         //Act
-        var success = await service.UpdateTicket(request);
+        var ticketResponse = await service.UpdateTicket(request);
         var updatedTicket = await _context.Tickets.FindAsync(Ticket3Id);
         //Assert
 
-        Assert.That(success, Is.True);
+        Assert.That(ticketResponse, Is.Not.Null);
         
         Assert.That(updatedTicket.AssignedUser, Is.Not.Null);
         Assert.That(updatedTicket.AssignedUser.Name, Is.EqualTo("Peter Parker"));
@@ -272,10 +272,10 @@ public class TicketingServiceTests
             AssignedUserId = Ticket3Id
         };
         //Act
-        var success = await service.UpdateTicket(request);
+        var ticketResponse = await service.UpdateTicket(request);
         //Assert
 
-        Assert.That(success, Is.False);
+        Assert.That(ticketResponse, Is.Null);
 
     }
     [Test]
@@ -294,13 +294,13 @@ public class TicketingServiceTests
             AssignedUserId = Ticket3Id
         };
         //Act
-        var success = await service.CreateTicket(request);
+        var ticketResponse = await service.CreateTicket(request);
         var tickets = await _context.Tickets.AsQueryable().ToListAsync();
         var ticket = tickets.FirstOrDefault(x => x.Title == "New Ticket");
         var after = DateTime.UtcNow;
         //Assert
 
-        Assert.That(success, Is.True);
+        Assert.That(ticketResponse, Is.Not.Null);
         Assert.That(tickets.Count, Is.EqualTo(5));
         Assert.That(ticket, Is.Not.Null);
         Assert.That(ticket.Description, Is.EqualTo("New Ticket Description"));
