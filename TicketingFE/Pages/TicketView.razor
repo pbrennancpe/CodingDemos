@@ -1,5 +1,8 @@
 ﻿@page "/"
 @using TicketingFE.Models
+@inject IJSRuntime JS
+@inject NavigationManager Nav
+
 @inject TicketApiService TicketService
 @inject UserApiService UserService
 
@@ -9,11 +12,13 @@
     <MudItem xs="6">
     </MudItem>
     <MudItem xs="3">
-    @if(false && Users != null && Users.Any())
+    @if(Users != null && Users.Any())
     {
-        <MudSelect @bind-Value="SelectedUserId">
-            <MudSelectItem T="Guid?" Value="@(null)">user.Name</MudSelectItem>
-            @foreach(var user in Users)
+        <MudSelect T="Guid?" 
+                @bind-Value="SelectedUserId"
+                Clearable
+                Placeholder="Select User">
+            @foreach(UserDTO user in Users)
             {
                 <MudSelectItem Value="@user.Id">@user.Name</MudSelectItem>
             }
@@ -21,10 +26,24 @@
     }
     </MudItem>
     <MudItem xs="3">
+        <MudSelect T="string"
+            @bind-Value="SelectedStatus"
+            Clearable
+            Placeholder="Select Status">
+                <MudSelectItem Value="@("open")">Open</MudSelectItem>
+                <MudSelectItem Value="@("inprogress")">In Progress</MudSelectItem>
+                <MudSelectItem Value="@("closed")">Closed</MudSelectItem>
+        </MudSelect>
     </MudItem>
 </MudGrid>
 
-<MudTable Items="@Tickets" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading" LoadingProgressColor="Color.Info">
+<MudTable 
+    Items="@Tickets" 
+    Hover="true" 
+    Breakpoint="Breakpoint.Sm" 
+    Loading="@_loading" 
+    LoadingProgressColor="Color.Info"
+    @bind-SelectedItem="SelectedTicket">
     <HeaderContent>
         <MudTh>Title</MudTh>
         <MudTh>Description</MudTh>
@@ -35,7 +54,7 @@
         <MudTd DataLabel="Title">@context.Title</MudTd>
         <MudTd DataLabel="Description">@context.Description</MudTd>
         <MudTd DataLabel="Status" HideSmall="_hidePosition">@context.TicketStatusDisplay</MudTd>
-        <MudTd DataLabel="Assigned User">@context.AssignedUser.Name</MudTd>
+        <MudTd DataLabel="Assigned User">@context.AssignedUser?.Name</MudTd>
     </RowTemplate>
 </MudTable>
 
@@ -48,12 +67,28 @@
     private List<(string Value, string DisplayName)> statusOptions = new();
     private List<TicketResponseDTO>? Tickets { get; set; }
     private List<UserDTO>? Users { get; set; }
-    private Guid? _selectedUserId;
+    private Guid? _selectedUserId = null;
+
+    private TicketResponseDTO? _selectedTicket = null;
+    private TicketResponseDTO? SelectedTicket
+    {
+         get => _selectedTicket;
+         set {
+            if(_selectedTicket != value)
+            {
+                _selectedTicket = value;
+                NavigateToTicket();
+            }
+         }
+    }
     private Guid? SelectedUserId {
         get => _selectedUserId;
          set {
-            _selectedUserId = value;
-            _ = LoadTicketsAsync();
+            if(_selectedUserId != value)
+            {
+                _selectedUserId = value;
+                _ = LoadTicketsAsync();
+            }
          }
     }
     private string? _selectedStatus;
@@ -61,8 +96,11 @@
     private string? SelectedStatus {
         get => _selectedStatus;
          set {
-            _selectedStatus = value;
-            _ = LoadTicketsAsync();
+            if(_selectedStatus != value)
+            {
+                _selectedStatus = value;
+                _ = LoadTicketsAsync();
+            }
          }
     }
     
@@ -102,11 +140,26 @@
                 UserId = SelectedUserId.ToString()
             };
 
-            Tickets = await TicketService.GetTicketsAsync(new TicketQuery());
+            Tickets = await TicketService.GetTicketsAsync(query);
+            _ = InvokeAsync(StateHasChanged);
+            _ = LogToConsole("Tickets Loaded");
         }
         catch(Exception ex)
         {
             Console.Error.WriteLine($"Error loading tickets: {ex.Message}");
+        }
+    }
+
+    private async Task LogToConsole(string message)
+    {
+        await JS.InvokeVoidAsync("console.log", message);
+    }
+
+    private void NavigateToTicket()
+    {
+        if(SelectedTicket != null)
+        {
+            Nav.NavigateTo($"/ticket/{SelectedTicket.Id}");
         }
     }
 }

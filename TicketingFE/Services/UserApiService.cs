@@ -6,6 +6,9 @@ public class UserApiService(HttpClient client)
 
     public async Task<List<UserDTO>?> GetUsersAsync()
     {
-        return await client.GetFromJsonAsync<List<UserDTO>>("Users");
+
+        var users = await client.GetFromJsonAsync<List<UserDTO>>("Users");
+
+        return users?.OrderBy(x => x.Name).ToList();
     }
 }   

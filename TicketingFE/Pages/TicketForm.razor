@@ -1,18 +1,76 @@
-﻿@page "/ticket/{Id:guid?}"
+﻿@using TicketingFE.Models
+@inject TicketApiService TicketService
+@inject UserApiService UserService
 
-<PageTitle>Counter</PageTitle>
+@page "/ticket/{Id:guid?}"
 
-<h1>Counter</h1>
+<PageTitle>Ticket</PageTitle>
 
-<p role="status">Current count: @currentCount</p>
+<MudGrid>
+    <MudItem xs="3">
+        <MudTextField Label="Name" @bind-Value="Name"></MudTextField>
+    </MudItem>
+    <MudItem xs="6"></MudItem>
+    <MudItem xs="3">
+            <MudItem xs="3">
+        <MudSelect T="string"
+            @bind-Value="SelectedStatus"
+            Clearable
+            Placeholder="Select Status">
+                <MudSelectItem Value="@("open")">Open</MudSelectItem>
+                <MudSelectItem Value="@("inprogress")">In Progress</MudSelectItem>
+                <MudSelectItem Value="@("closed")">Closed</MudSelectItem>
+        </MudSelect>
+    </MudItem>
+    <MudItem xs="9">
+    </MudItem>
+    <MudItem xs="3">
+            @if(Users != null && Users.Any())
+    {
+        <MudSelect T="Guid?" 
+                @bind-Value="UserId"
+                Clearable
+                Placeholder="Select User">
+            @foreach(UserDTO user in Users)
+            {
+                <MudSelectItem Value="@user.Id">@user.Name</MudSelectItem>
+            }
+        </MudSelect>
+    }
+    </MudItem>
+    </MudItem>
+    <MudItem xs="12">
+        <MudTextField Label="Description" @bind-Value="Description" Lines="6"></MudTextField>
+    </MudItem>
 
-<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+</MudGrid>
+
 
 @code {
     private int currentCount = 0;
+    private string? Name;
+    private string? Description;
+    private string? Status;
+    private Guid? UserId;
 
-    private void IncrementCount()
+    private List<UserDTO>? Users { get; set; }
+
+    private Guid? Id;
+
+    private string? SelectedStatus { get; set; }
+
+    protected override async Task OnInitializedAsync()
     {
-        currentCount++;
+        Users  = await UserService.GetUsersAsync();
+    }
+
+    private async Task CreateTicket()
+    {
+
+    }
+
+    private async Task UpdateTicket()
+    {
+
     }
 }
