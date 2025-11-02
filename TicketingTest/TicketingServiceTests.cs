@@ -62,6 +62,7 @@ public class TicketingServiceTests
             {
                 Id = Ticket1Id,
                 Title = "Critical Bug",
+                TicketNo = 1,
                 Description = "Login page displays blank screen",
                 TicketStatus = Status.Open,
                 CreatedAt = DateTime.UtcNow.AddDays(-2),
@@ -73,6 +74,7 @@ public class TicketingServiceTests
             {
                 Id = Ticket2Id,
                 Title = "UI Glitch on Dashboard",
+                TicketNo = 2,
                 Description = "Misaligned image on page load",
                 TicketStatus = Status.InProgress,
                 CreatedAt = DateTime.UtcNow.AddDays(-1),
@@ -84,6 +86,7 @@ public class TicketingServiceTests
             {
                 Id = Ticket3Id,
                 Title = "Submit button disabled",
+                TicketNo = 3,
                 Description = "Form button does not enable even when all fields are filled out",
                 TicketStatus = Status.Closed,
                 CreatedAt = DateTime.UtcNow.AddDays(-1),
@@ -95,6 +98,7 @@ public class TicketingServiceTests
             {
                 Id = Ticket4Id,
                 Title = "Wrong Image Displays",
+                TicketNo = 4,
                 Description = "Wrong image displays on homepage",
                 TicketStatus = Status.Closed,
                 CreatedAt = DateTime.UtcNow.AddDays(-5),
@@ -178,12 +182,38 @@ public class TicketingServiceTests
     }
 
     [Test]
+    public async Task GetTicketByNumber()
+    {
+        //Arrange
+        var service = new TicketService(_context);
+        int ticketNo = 3;
+        //Act
+        var ticket = await service.GetTicketByNo(ticketNo);
+        //Assert
+        Assert.That(ticket, Is.Not.Null);
+        Assert.That(ticket.TicketNo, Is.EqualTo(3));
+        Assert.That(ticket.Title, Is.EqualTo("Submit button disabled"));
+    }
+
+    [Test]
     public async Task TicketNotFound()
     {
         //arrange
         var service = new TicketService(_context);
         //Act
         var ticket = await service.GetTicketById(User1Id);
+        //Assert
+        Assert.That(ticket, Is.Null);
+    }
+
+
+    [Test]
+    public async Task TicketNotFoundByNumber()
+    {
+        //arrange
+        var service = new TicketService(_context);
+        //Act
+        var ticket = await service.GetTicketByNo(7);
         //Assert
         Assert.That(ticket, Is.Null);
     }
@@ -205,6 +235,28 @@ public class TicketingServiceTests
         var updatedTicket = await _context.Tickets.FindAsync(Ticket4Id);
         Assert.That(ticketResponse, Is.Not.Null);
         Assert.That(updatedTicket.Title, Is.EqualTo("New Ticket Title"));
+        Assert.That(updatedTicket.Description, Is.EqualTo("Wrong image displays on homepage"));
+        Assert.That(updatedTicket.UpdatedAt, Is.InRange(before, after));
+
+    }
+    [Test]
+    public async Task UpdateTicketStaatus()
+    {
+        //Arrange
+        var before = DateTime.UtcNow;
+        var service = new TicketService(_context);
+        var request = new UpdateTicketDTO
+        {
+            Id = Ticket4Id,
+            TicketStatus = Status.InProgress
+        };
+        //Act
+        var ticketResponse = await service.UpdateTicket(request);
+        var after = DateTime.UtcNow;
+        //Assert
+        var updatedTicket = await _context.Tickets.FindAsync(Ticket4Id);
+        Assert.That(ticketResponse, Is.Not.Null);
+        Assert.That(updatedTicket.TicketStatus, Is.EqualTo(Status.InProgress));
         Assert.That(updatedTicket.Description, Is.EqualTo("Wrong image displays on homepage"));
         Assert.That(updatedTicket.UpdatedAt, Is.InRange(before, after));
 

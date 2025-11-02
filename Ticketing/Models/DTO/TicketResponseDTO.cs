@@ -6,6 +6,7 @@ namespace Ticketing.Models.DTO
     public class TicketResponseDTO
     {
         public Guid Id { get; set; }
+        public int? TicketNo { get; set; }
         public required string Title { get; set; }
         public string? Description { get; set; }
         public string? TicketStatusDisplay

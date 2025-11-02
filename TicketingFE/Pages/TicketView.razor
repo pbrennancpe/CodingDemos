@@ -45,16 +45,18 @@
     LoadingProgressColor="Color.Info"
     @bind-SelectedItem="SelectedTicket">
     <HeaderContent>
+        <MudTh>No.</MudTh>
         <MudTh>Title</MudTh>
         <MudTh>Description</MudTh>
         <MudTh>Status</MudTh>
         <MudTh>Assigned User</MudTh>
     </HeaderContent>
     <RowTemplate>
-        <MudTd DataLabel="Title">@context.Title</MudTd>
-        <MudTd DataLabel="Description">@context.Description</MudTd>
-        <MudTd DataLabel="Status" HideSmall="_hidePosition">@context.TicketStatusDisplay</MudTd>
-        <MudTd DataLabel="Assigned User">@context.AssignedUser?.Name</MudTd>
+        <MudTd DataLabel="No.">@context?.TicketNo</MudTd>
+        <MudTd DataLabel="Title">@context?.Title</MudTd>
+        <MudTd DataLabel="Description">@context?.Description</MudTd>
+        <MudTd DataLabel="Status" HideSmall="_hidePosition">@context?.TicketStatusDisplay</MudTd>
+        <MudTd DataLabel="Assigned User">@context?.AssignedUser?.Name</MudTd>
     </RowTemplate>
 </MudTable>
 

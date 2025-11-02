@@ -13,6 +13,7 @@ namespace Ticketing.Extensions
             return new TicketResponseDTO
             {
                 Id = value.Id,
+                TicketNo = value.TicketNo,
                 Title = value.Title,
                 Description = value.Description,
                 CreatedAt = value.CreatedAt,

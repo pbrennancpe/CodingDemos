@@ -1,12 +1,11 @@
 using TicketingFE.Extensions;
-
 namespace TicketingFE.Models
 {
-    public class TicketResponseDTO
+    public class TicketViewModel
     {
-        public Guid Id { get; set; }
+        public Guid? Id { get; set; }
         public int? TicketNo { get; set; }
-        public required string Title { get; set; }
+        public string? Title { get; set; }
         public string? Description { get; set; }
         public string? TicketStatusDisplay
         {
@@ -15,9 +14,9 @@ namespace TicketingFE.Models
                 return TicketStatus.GetDisplayName();
             }
         }
-        public Status TicketStatus { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public DateTime UpdatedAt { get; set; }
-        public UserDTO? AssignedUser { get; set; }
+        public Status? TicketStatus { get; set; }
+        public DateTime? CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
+        public UserViewModel? AssignedUser { get; set; }
     }
 }

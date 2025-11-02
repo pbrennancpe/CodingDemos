@@ -12,6 +12,23 @@ namespace Ticketing.Services
     public class TicketService(TicketingDBContext context) : ITicketService
     {
 
+        public async Task<TicketResponseDTO> GetTicketByNo(int ticketNo)
+        {
+            var ticket = await context.Tickets
+                .Include(x => x.AssignedUser)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.TicketNo == ticketNo);
+
+            if (ticket == null)
+            {
+                //Don't throw an exception just return null
+                return null;
+            }
+            
+
+            return ticket.ToResponseDTO();
+        }
+
         public async Task<TicketResponseDTO> GetTicketById(Guid id)
         {
             var ticket = await context.Tickets
@@ -65,8 +82,8 @@ namespace Ticketing.Services
             ticket.Title = request.Title ?? ticket.Title;
             ticket.Description = request.Description ?? ticket.Description;
             ticket.TicketStatus = request.TicketStatus != null &&
-            request.TicketStatus.ToStatusEnum() != Models.Enums.Status.Error ?
-                request.TicketStatus.ToStatusEnum() :
+            request.TicketStatus != Models.Enums.Status.Error ?
+                request.TicketStatus.Value :
                 ticket.TicketStatus;
 
         

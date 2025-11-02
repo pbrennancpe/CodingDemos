@@ -1,76 +1,282 @@
-﻿@using TicketingFE.Models
+﻿@using TicketingFE.Extensions
+@using TicketingFE.Models
 @inject TicketApiService TicketService
 @inject UserApiService UserService
+@inject ISnackbar Snackbar
 
-@page "/ticket/{Id:guid?}"
+@page "/ticket/{Id?}"
 
 <PageTitle>Ticket</PageTitle>
 
-<MudGrid>
-    <MudItem xs="3">
-        <MudTextField Label="Name" @bind-Value="Name"></MudTextField>
-    </MudItem>
-    <MudItem xs="6"></MudItem>
-    <MudItem xs="3">
-            <MudItem xs="3">
-        <MudSelect T="string"
-            @bind-Value="SelectedStatus"
-            Clearable
-            Placeholder="Select Status">
-                <MudSelectItem Value="@("open")">Open</MudSelectItem>
-                <MudSelectItem Value="@("inprogress")">In Progress</MudSelectItem>
-                <MudSelectItem Value="@("closed")">Closed</MudSelectItem>
-        </MudSelect>
-    </MudItem>
-    <MudItem xs="9">
-    </MudItem>
-    <MudItem xs="3">
-            @if(Users != null && Users.Any())
+
+@if(isLoading)
+{
+    <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+    <MudText Typo="Typo.subtitle1" Class="mt-2">Loading item...</MudText>
+}
+else if(ErrorMessage != null)
+{
+    <MudText Typo="Typo.subtitle1" Class="mt-2">@ErrorMessage</MudText>
+}
+else
+{
+    @if(IsEditMode)
     {
-        <MudSelect T="Guid?" 
-                @bind-Value="UserId"
-                Clearable
-                Placeholder="Select User">
-            @foreach(UserDTO user in Users)
-            {
-                <MudSelectItem Value="@user.Id">@user.Name</MudSelectItem>
-            }
-        </MudSelect>
+        <MudText Typo="Typo.h4">
+            Edit/View Ticket
+        </MudText>
     }
-    </MudItem>
-    </MudItem>
-    <MudItem xs="12">
-        <MudTextField Label="Description" @bind-Value="Description" Lines="6"></MudTextField>
-    </MudItem>
+    else
+    {
+        <MudText Typo="Typo.h4">
+            Create New Ticket
+        </MudText>
+    }
+    <MudGrid class="pt-2">
+        <MudItem xs="12">
+        <MudText Typo="Typo.body1">
+            Ticket Number: @Ticket?.TicketNo
+        </MudText>
+        </MudItem>
+        <MudItem xs="4">
+            <MudTextField 
+                Label="Title" 
+                @bind-Value="Title"
+                Variant="Variant.Outlined"></MudTextField>
+        </MudItem>
+        <MudItem xs="8"></MudItem>
 
-</MudGrid>
+        <MudItem xs="9">
+        </MudItem>
 
+        <MudItem xs="12">
+            <MudTextField 
+                Label="Description" 
+                @bind-Value="Description" 
+                Lines="6"
+                Variant="Variant.Outlined"></MudTextField>
+        </MudItem>
+        <MudItem xs="1">
+        </MudItem>
+        <MudItem xs="4">
+            <MudSelect T="Status?"
+                @bind-Value="SelectedStatus"
+                Variant="Variant.Outlined"
+                Clearable
+                Placeholder="Select Status">
+                    <MudSelectItem T="Status?" Value="@Status.Open">Open</MudSelectItem>
+                    <MudSelectItem T="Status?" Value="@Status.InProgress">In Progress</MudSelectItem>
+                    <MudSelectItem T="Status?" Value="@Status.Closed">Closed</MudSelectItem>
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="2">
+        </MudItem>
+        <MudItem xs="4">
+        @if(Users != null && Users.Any())
+        {
+            <MudSelect T="Guid?" 
+                    @bind-Value="AssignedUserId"
+                    Variant="Variant.Outlined"
+                    Clearable
+                    Placeholder="Select User">
+                @foreach(UserViewModel user in Users)
+                {
+                    <MudSelectItem T="Guid?" Value="@user.Id">@user.Name</MudSelectItem>
+                }
+            </MudSelect>
+        }
+        </MudItem>
+        @if(IsEditMode)
+        {
+            <MudItem xs="8">
+            </MudItem>
+            <MudItem xs="4">
+                <MudText Typo="Typo.body2">
+                    Ticket created: @Ticket?.CreatedAt?.ToLocalTime().ToString("g")
+                </MudText>
+            </MudItem>
+            <MudItem xs="8">
+            </MudItem>
+            <MudItem xs="4">
+                <MudText Typo="Typo.body2">
+                    Last updated: @Ticket?.UpdatedAt?.ToLocalTime().ToString("g")
+                </MudText>
+            </MudItem>
+
+        }
+        <MudItem xs="10">
+        </MudItem>
+        <MudItem xs="2">
+            @if(IsEditMode)
+            {
+                <MudButton Color="Color.Primary" 
+                    Variant="Variant.Filled" 
+                    Disabled="@isProccessing"
+                    OnClick="UpdateTicket">
+                    Update
+                </MudButton>
+            }
+            else
+            {
+                <MudButton Color="Color.Primary" 
+                    Variant="Variant.Filled" 
+                    Disabled="@isProccessing"
+                    OnClick="CreateTicket">
+                    Create
+                </MudButton>
+            }
+            
+        </MudItem>
+    </MudGrid>
+}
 
 @code {
-    private int currentCount = 0;
-    private string? Name;
-    private string? Description;
-    private string? Status;
-    private Guid? UserId;
+    [Parameter]
+    public string? Id { get; set; }
+    private TicketViewModel? Ticket = null;
+    private bool IsEditMode = false;
+    private bool isLoading = true;
+    private bool isProccessing = false;
+    private string? ErrorMessage = null;
+    private string? Title
+    {
+        get => Ticket?.Title;
+        set
+        {
+            if(Ticket == null)
+            {
+                Ticket = new TicketViewModel();
+            }
+            Ticket.Title = value;
+        }
+    }
+    private string? Description
+    {
+        get => Ticket?.Description;
+        set
+        {
+            if(Ticket == null)
+            {
+                Ticket = new TicketViewModel();
+            }
+            Ticket.Description = value;
+        }
+    }
 
-    private List<UserDTO>? Users { get; set; }
 
-    private Guid? Id;
+    private Guid? AssignedUserId
+    {
+        get => Ticket?.AssignedUser?.Id;
+        set
+        {
+            if (Ticket != null)
+            {
+                // Ensure AssignedUser exists
+                Ticket.AssignedUser ??= new UserViewModel();
+                Ticket.AssignedUser.Id = value ?? Guid.Empty;
+            }
+        }
+    }
 
-    private string? SelectedStatus { get; set; }
+    private List<UserViewModel>? Users { get; set; }
+
+    
+
+    private Status? SelectedStatus { 
+        get => Ticket?.TicketStatus;
+        set {
+            if (Ticket != null)
+            {
+                Ticket.TicketStatus = value;
+            }
+        }
+    }
 
     protected override async Task OnInitializedAsync()
     {
-        Users  = await UserService.GetUsersAsync();
+        var usersDTO  = await UserService.GetUsersAsync();
+        Users = usersDTO.Select(x => x.ToViewModel()).ToList();
+
+        if(Id != null)
+        {
+            var ticketDTO = await TicketService.GetTicketByIdAsync(Id);
+            if(ticketDTO == null)
+            {
+                ErrorMessage = "That ticket does not seem to exist.";
+            }
+            else
+            {
+                Ticket = ticketDTO.ToViewModel();
+                IsEditMode = true;
+            }
+        }
+        else
+        {
+            Ticket = new TicketViewModel();
+        }
+        _ = InvokeAsync(StateHasChanged);
+        isLoading = false;
     }
 
     private async Task CreateTicket()
     {
+        isProccessing = true;
+        var createTicketDTO = new TicketCreateDTO
+        {
+            Title = Ticket?.Title,
+            Description = Ticket?.Description,
+            AssignedUserId = Ticket?.AssignedUser != null ? 
+                Ticket.AssignedUser.Id : null
+        };
+
+        var ticketDTO = await TicketService.CreateTicketAsync(createTicketDTO);
+
+        if(ticketDTO != null)
+        {
+            Snackbar.Add($"Ticket Created with Id: {Ticket?.Id}", Severity.Success);
+                Ticket = ticketDTO?.ToViewModel();
+                IsEditMode = true;
+        }
+        else
+        {
+            ErrorMessage = "There was an issue creating the ticket";
+        }
+
+        isProccessing = false;
+        _ = InvokeAsync(StateHasChanged);
 
     }
 
     private async Task UpdateTicket()
     {
+        if(Ticket == null)
+        {
+            ErrorMessage = "There was an issue initalizing page data.";
+        }
+        isProccessing = true;
+        var updateTicketDTO = new TicketUpdateDTO
+        {
+            Id = Ticket.Id.Value,
+            Title = Ticket?.Title,
+            TicketStatus = Ticket?.TicketStatus,
+            Description = Ticket?.Description,
+            AssignedUserId = Ticket?.AssignedUser != null ? 
+                Ticket.AssignedUser.Id : null
+        };
 
+        var ticketDTO = await TicketService.UpdateTicketAsync(updateTicketDTO);
+        if(ticketDTO != null)
+        {
+            Ticket = ticketDTO?.ToViewModel();
+            Snackbar.Add($"Ticket Updated with Id: {Ticket?.Id}", Severity.Success);
+        }
+        else
+        {
+            ErrorMessage = "There was an issue updating the ticket";
+        }
+        
+        isProccessing = false;
+        _ = InvokeAsync(StateHasChanged);
+        
     }
 }

@@ -54,12 +54,19 @@ namespace Ticketing.Controllers
         }
 
         [HttpGet("{id}")] 
-        public async Task<IActionResult> GetByID(Guid id)
+        public async Task<IActionResult> GetByID(string id)
         {
             try
             {
-                var ticket = await service.GetTicketById(id);
-
+                TicketResponseDTO ticket = null;
+                if(Guid.TryParse(id, out var guid))
+                {
+                    ticket = await service.GetTicketById(guid);
+                }
+                else if(Int32.TryParse(id, out var ticketNo))
+                {
+                    ticket = await service.GetTicketByNo(ticketNo);
+                }
                 if (ticket != null)
                 {
                     return Ok(ticket);

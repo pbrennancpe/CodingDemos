@@ -12,6 +12,6 @@ namespace Ticketing.Models.DTO
     public class UpdateTicketDTO : TicketRequestDTO
     {
         public Guid? Id { get; set; }
-        public string? TicketStatus { get; set; }
+        public Status? TicketStatus { get; set; }
     }
 }

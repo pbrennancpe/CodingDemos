@@ -12,6 +12,15 @@ namespace Ticketing.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+
+            modelBuilder.HasSequence<int>("TicketNumbers", schema: "shared")
+                .StartsAt(1)
+                .IncrementsBy(1);
+
+             modelBuilder.Entity<Ticket>()
+                .Property(o => o.TicketNo)
+                .HasDefaultValueSql("NEXT VALUE FOR shared.TicketNumbers");
+
             modelBuilder.Entity<Ticket>()
                 .HasOne(x => x.AssignedUser)
                 .WithMany(x => x.Tickets)

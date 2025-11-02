@@ -56,23 +56,25 @@ public class TicketApiService(HttpClient client, IJSRuntime js)
         return await client.GetFromJsonAsync<List<TicketResponseDTO>>("endpoint");
     }
 
-    public async Task<TicketResponseDTO?> GetTicketByIdAsync(Guid id)
+    public async Task<TicketResponseDTO?> GetTicketByIdAsync(string id)
     {
         return await client.GetFromJsonAsync<TicketResponseDTO>($"Tickets/{id}");
     }
-
-    // POST /Tickets (create)
-    public async Task<bool> CreateTicketAsync(TicketRequestDTO dto)
+    public async Task<TicketResponseDTO?> CreateTicketAsync(TicketRequestDTO dto)
     {
         var response = await client.PostAsJsonAsync("Tickets", dto);
-        return response.IsSuccessStatusCode;
+        if (!response.IsSuccessStatusCode)
+            return null;
+        var ticket = await response.Content.ReadFromJsonAsync<TicketResponseDTO>();
+        return ticket;
     }
-
-    // POST /Tickets (update)
-    public async Task<bool> UpdateTicketAsync(UpdateTicketDTO dto)
+    public async Task<TicketResponseDTO?> UpdateTicketAsync(TicketUpdateDTO dto)
     {
-        var response = await client.PostAsJsonAsync("Tickets", dto);
-        return response.IsSuccessStatusCode;
+        var response = await client.PostAsJsonAsync($"Tickets/{dto.Id}", dto);
+        if (!response.IsSuccessStatusCode)
+            return null;
+        var ticket = await response.Content.ReadFromJsonAsync<TicketResponseDTO>();
+        return ticket;
     }
 
 
