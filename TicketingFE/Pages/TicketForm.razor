@@ -20,48 +20,33 @@ else if(ErrorMessage != null)
 }
 else
 {
-    @if(IsEditMode)
-    {
-        <MudText Typo="Typo.h4">
-            Edit/View Ticket
+
+    <MudStack Spacing="2" Class="pt-2 pb-4">
+        <MudText class="pt-2" Typo="Typo.h4">
+            @(IsEditMode ? "Edit/View Ticket" : "Create New Ticket")
         </MudText>
-    }
-    else
-    {
-        <MudText Typo="Typo.h4">
-            Create New Ticket
-        </MudText>
-    }
-    <MudGrid class="pt-2">
-        <MudItem xs="12">
+
         <MudText Typo="Typo.body1">
             Ticket Number: @Ticket?.TicketNo
         </MudText>
-        </MudItem>
-        <MudItem xs="4">
-            <MudTextField 
-                Label="Title" 
-                @bind-Value="Title"
-                Variant="Variant.Outlined"></MudTextField>
-        </MudItem>
-        <MudItem xs="8"></MudItem>
 
-        <MudItem xs="9">
-        </MudItem>
+        <MudTextField 
+            Label="Title" 
+            @bind-Value="Title"
+            Variant="Variant.Outlined"></MudTextField>
 
-        <MudItem xs="12">
-            <MudTextField 
-                Label="Description" 
-                @bind-Value="Description" 
-                Lines="6"
-                Variant="Variant.Outlined"></MudTextField>
-        </MudItem>
-        <MudItem xs="1">
-        </MudItem>
-        <MudItem xs="4">
+        <MudTextField 
+            Label="Description" 
+            @bind-Value="Description" 
+            Lines="6"
+            Variant="Variant.Outlined"></MudTextField>
+
+    <MudGrid>
+        <MudItem xs="6">
             <MudSelect T="Status?"
                 @bind-Value="SelectedStatus"
                 Variant="Variant.Outlined"
+                Label="Status"
                 Clearable
                 Placeholder="Select Status">
                     <MudSelectItem T="Status?" Value="@Status.Open">Open</MudSelectItem>
@@ -69,14 +54,13 @@ else
                     <MudSelectItem T="Status?" Value="@Status.Closed">Closed</MudSelectItem>
             </MudSelect>
         </MudItem>
-        <MudItem xs="2">
-        </MudItem>
-        <MudItem xs="4">
+        <MudItem xs="6">
         @if(Users != null && Users.Any())
         {
             <MudSelect T="Guid?" 
                     @bind-Value="AssignedUserId"
                     Variant="Variant.Outlined"
+                    Label="Assigned Uswr"
                     Clearable
                     Placeholder="Select User">
                 @foreach(UserViewModel user in Users)
@@ -86,48 +70,47 @@ else
             </MudSelect>
         }
         </MudItem>
-        @if(IsEditMode)
-        {
-            <MudItem xs="8">
-            </MudItem>
-            <MudItem xs="4">
-                <MudText Typo="Typo.body2">
-                    Ticket created: @Ticket?.CreatedAt?.ToLocalTime().ToString("g")
-                </MudText>
-            </MudItem>
-            <MudItem xs="8">
-            </MudItem>
-            <MudItem xs="4">
-                <MudText Typo="Typo.body2">
-                    Last updated: @Ticket?.UpdatedAt?.ToLocalTime().ToString("g")
-                </MudText>
-            </MudItem>
-
-        }
-        <MudItem xs="10">
-        </MudItem>
-        <MudItem xs="2">
-            @if(IsEditMode)
-            {
-                <MudButton Color="Color.Primary" 
-                    Variant="Variant.Filled" 
-                    Disabled="@isProccessing"
-                    OnClick="UpdateTicket">
-                    Update
-                </MudButton>
-            }
-            else
-            {
-                <MudButton Color="Color.Primary" 
-                    Variant="Variant.Filled" 
-                    Disabled="@isProccessing"
-                    OnClick="CreateTicket">
-                    Create
-                </MudButton>
-            }
-            
-        </MudItem>
     </MudGrid>
+    </MudStack>
+    <div class="d-flex justify-end">
+        <MudStack Spacing="2">
+    @if(IsEditMode)
+    {
+
+        <MudText Typo="Typo.body2">
+            Ticket created: @Ticket?.CreatedAt?.ToLocalTime().ToString("g")
+        </MudText>
+        <MudText Typo="Typo.body2">
+            Last updated: @Ticket?.UpdatedAt?.ToLocalTime().ToString("g")
+        </MudText>
+
+
+    }
+
+
+
+    @if(IsEditMode)
+    {
+        <MudButton Color="Color.Primary" 
+            Variant="Variant.Filled" 
+            class="pr-5 "
+            Disabled="@isProccessing"
+            OnClick="UpdateTicket">
+            Update
+        </MudButton>
+    }
+    else
+    {
+        <MudButton Color="Color.Primary" 
+            Variant="Variant.Filled" 
+            class="pr-5"
+            Disabled="@isProccessing"
+            OnClick="CreateTicket">
+            Create
+        </MudButton>
+    }
+    </MudStack>
+    </div>
 }
 
 @code {

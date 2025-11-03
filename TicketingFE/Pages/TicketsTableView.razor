@@ -1,4 +1,5 @@
 ﻿@page "/"
+@using TicketingFE.Extensions
 @using TicketingFE.Models
 @inject IJSRuntime JS
 @inject NavigationManager Nav
@@ -8,8 +9,13 @@
 
 <PageTitle>Ticketing Home</PageTitle>
 
-<MudGrid>
+<MudGrid class="pt-3">
     <MudItem xs="6">
+        <MudButton Color="Color.Primary" 
+            Variant="Variant.Filled" 
+            Href="/ticket">
+        Create New Ticket
+        </MudButton>
     </MudItem>
     <MudItem xs="3">
     @if(Users != null && Users.Any())
@@ -18,7 +24,7 @@
                 @bind-Value="SelectedUserId"
                 Clearable
                 Placeholder="Select User">
-            @foreach(UserDTO user in Users)
+            @foreach(UserViewModel user in Users)
             {
                 <MudSelectItem Value="@user.Id">@user.Name</MudSelectItem>
             }
@@ -30,9 +36,9 @@
             @bind-Value="SelectedStatus"
             Clearable
             Placeholder="Select Status">
-                <MudSelectItem Value="@("open")">Open</MudSelectItem>
-                <MudSelectItem Value="@("inprogress")">In Progress</MudSelectItem>
-                <MudSelectItem Value="@("closed")">Closed</MudSelectItem>
+                <MudSelectItem T="string" Value="@("open")">Open</MudSelectItem>
+                <MudSelectItem T="string" Value="@("inprogress")">In Progress</MudSelectItem>
+                <MudSelectItem T="string" Value="@("closed")">Closed</MudSelectItem>
         </MudSelect>
     </MudItem>
 </MudGrid>
@@ -61,18 +67,17 @@
 </MudTable>
 
 
-
 @code {
     private bool _hidePosition;
     private bool _loading;
 
     private List<(string Value, string DisplayName)> statusOptions = new();
-    private List<TicketResponseDTO>? Tickets { get; set; }
-    private List<UserDTO>? Users { get; set; }
+    private List<TicketViewModel>? Tickets { get; set; }
+    private List<UserViewModel>? Users { get; set; }
     private Guid? _selectedUserId = null;
 
-    private TicketResponseDTO? _selectedTicket = null;
-    private TicketResponseDTO? SelectedTicket
+    private TicketViewModel? _selectedTicket = null;
+    private TicketViewModel? SelectedTicket
     {
          get => _selectedTicket;
          set {
@@ -117,10 +122,14 @@
 
             await Task.WhenAll(ticketTask, userTask);
 
-            Tickets = ticketTask.Result;
-            Users = userTask.Result;
+            Tickets = ticketTask.Result?
+                .Select(x => x.ToViewModel())
+                .OrderBy(x => x.TicketNo)
+                .ToList();
+            Users = userTask.Result?
+                .Select(x => x.ToViewModel())
+                .ToList();
 
-           Tickets = await TicketService.GetTicketsAsync(new TicketQuery());
         }
         catch (Exception ex)
         {
@@ -142,7 +151,12 @@
                 UserId = SelectedUserId.ToString()
             };
 
-            Tickets = await TicketService.GetTicketsAsync(query);
+            var ticketsDTO = await TicketService.GetTicketsAsync(query);
+            Tickets = ticketsDTO
+                .Select(x => x.ToViewModel())
+                .OrderBy(x =>x.TicketNo)
+                .ToList();
+
             _ = InvokeAsync(StateHasChanged);
             _ = LogToConsole("Tickets Loaded");
         }
@@ -161,7 +175,7 @@
     {
         if(SelectedTicket != null)
         {
-            Nav.NavigateTo($"/ticket/{SelectedTicket.Id}");
+            Nav.NavigateTo($"/ticket/{SelectedTicket.TicketNo}");
         }
     }
 }
