@@ -12,7 +12,7 @@ using Ticketing.Models.DTO;
 
 namespace TicketingTest;
 
-[TestFixture]
+[TestFixture, NUnit.Framework.Category("Unit")]
 public class TicketingServiceTests
 {
 

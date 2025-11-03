@@ -32,27 +32,33 @@ else
 
         <MudTextField 
             Label="Title" 
+            Id="Title"
             @bind-Value="Title"
             Variant="Variant.Outlined"></MudTextField>
 
         <MudTextField 
             Label="Description" 
+            Id="Description"
             @bind-Value="Description" 
             Lines="6"
             Variant="Variant.Outlined"></MudTextField>
 
     <MudGrid>
         <MudItem xs="6">
+        @if(IsEditMode)
+        {
             <MudSelect T="Status?"
                 @bind-Value="SelectedStatus"
                 Variant="Variant.Outlined"
                 Label="Status"
+                Id = "Status"
                 Clearable
                 Placeholder="Select Status">
                     <MudSelectItem T="Status?" Value="@Status.Open">Open</MudSelectItem>
                     <MudSelectItem T="Status?" Value="@Status.InProgress">In Progress</MudSelectItem>
                     <MudSelectItem T="Status?" Value="@Status.Closed">Closed</MudSelectItem>
             </MudSelect>
+        }
         </MudItem>
         <MudItem xs="6">
         @if(Users != null && Users.Any())
@@ -60,7 +66,8 @@ else
             <MudSelect T="Guid?" 
                     @bind-Value="AssignedUserId"
                     Variant="Variant.Outlined"
-                    Label="Assigned Uswr"
+                    Label="Assigned User"
+                    Id="AssignedUser"
                     Clearable
                     Placeholder="Select User">
                 @foreach(UserViewModel user in Users)
@@ -92,6 +99,7 @@ else
     @if(IsEditMode)
     {
         <MudButton Color="Color.Primary" 
+            Id="UpdateButton"
             Variant="Variant.Filled" 
             class="pr-5 "
             Disabled="@isProccessing"
@@ -102,6 +110,7 @@ else
     else
     {
         <MudButton Color="Color.Primary" 
+            Id="CreateButton"
             Variant="Variant.Filled" 
             class="pr-5"
             Disabled="@isProccessing"

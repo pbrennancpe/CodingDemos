@@ -13,7 +13,8 @@
     <MudItem xs="6">
         <MudButton Color="Color.Primary" 
             Variant="Variant.Filled" 
-            Href="/ticket">
+            Href="/ticket"
+            Id="CreateTicket">
         Create New Ticket
         </MudButton>
     </MudItem>
@@ -23,7 +24,8 @@
         <MudSelect T="Guid?" 
                 @bind-Value="SelectedUserId"
                 Clearable
-                Placeholder="Select User">
+                Placeholder="Select User"
+                Id=SelectUser>
             @foreach(UserViewModel user in Users)
             {
                 <MudSelectItem Value="@user.Id">@user.Name</MudSelectItem>
@@ -35,7 +37,8 @@
         <MudSelect T="string"
             @bind-Value="SelectedStatus"
             Clearable
-            Placeholder="Select Status">
+            Placeholder="Select Status"
+            Id=SelectStatus>
                 <MudSelectItem T="string" Value="@("open")">Open</MudSelectItem>
                 <MudSelectItem T="string" Value="@("inprogress")">In Progress</MudSelectItem>
                 <MudSelectItem T="string" Value="@("closed")">Closed</MudSelectItem>
@@ -49,7 +52,8 @@
     Breakpoint="Breakpoint.Sm" 
     Loading="@_loading" 
     LoadingProgressColor="Color.Info"
-    @bind-SelectedItem="SelectedTicket">
+    @bind-SelectedItem="SelectedTicket"
+    Id="TicketTable">
     <HeaderContent>
         <MudTh>No.</MudTh>
         <MudTh>Title</MudTh>
