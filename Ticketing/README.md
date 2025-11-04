@@ -98,6 +98,8 @@ Some notes on the methods.
 
 Tickets are always created with OPEN status
 
+POST is used here for the update method instead of PUT or PATCH because of personal preferrence.  It could easily be changed to PUT or PATCH.
+
 If a field is not included in the Update method that field will not be set to null instead it will be left unchanged.
 
 The User get exists purely to populate fields on the Front End to allow tickets to be reassigned.
@@ -152,6 +154,8 @@ For integration testing Playwright was used.  Both ./Ticketing and ./TicketingFE
 ## Next Steps
 
 - Add Docker support for both the API and Blazor frontend.
+- Error handling/Logging
+- Caching
 - Configure environment variables for connection strings and secrets.
 - Automate deployment to Azure.
 - Implement pagination, column sorting, and search in the frontend ticket table.
